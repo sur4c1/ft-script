@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 15:15:24 by bguyot            #+#    #+#             */
-/*   Updated: 2025/08/26 17:22:37 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/08/26 17:45:05 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,6 +156,8 @@ int parse_arguments(int argc, char **argv, t_arguments *arguments)
 			exit(0);
 		}
 	}
+	if (ft_optopt)
+		return (-1);
 	if (!arguments->log_out.path)
 		arguments->log_out.path = ft_optarg;
 	if (!arguments->log_out.path)
