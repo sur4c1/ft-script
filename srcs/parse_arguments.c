@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 15:15:24 by bguyot            #+#    #+#             */
-/*   Updated: 2025/08/26 16:24:52 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/08/26 17:22:37 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,10 +55,9 @@ print_version()
 	ft_printf("ft_script from ikar %s\n", VERSION);
 }
 
-int
-parse_arguments(int argc, char **argv, t_arguments *arguments)
+int parse_arguments(int argc, char **argv, t_arguments *arguments)
 {
-	int			   arg;
+	int arg;
 	const t_option options[] = {
 		{"log-in", required_argument, NULL, 'I'},
 		{"log-out", required_argument, NULL, 'O'},
@@ -79,8 +78,7 @@ parse_arguments(int argc, char **argv, t_arguments *arguments)
 	};
 
 	while ((arg = ft_getopt_long(argc, argv, "I:O:B:T:t::m:ac:efE:o:qhV",
-								 options, NULL))
-		   != -1)
+								 options, NULL)) != -1)
 	{
 		switch (arg)
 		{
@@ -159,7 +157,7 @@ parse_arguments(int argc, char **argv, t_arguments *arguments)
 		}
 	}
 	if (!arguments->log_out.path)
-		arguments->log_out.path = argv[0];
+		arguments->log_out.path = ft_optarg;
 	if (!arguments->log_out.path)
 		arguments->log_out.path = "typescript";
 	return (0);
