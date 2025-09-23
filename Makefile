@@ -22,7 +22,7 @@ MKDIR	=	@mkdir -p
 all: $(NAME)
 
 $(NAME):	$(OBJS) $(addprefix $(LDIR), $(LIBS))
-	$(CC) $(LFLAGS) $^ -o $@
+	$(CC) $(OBJS) $(LFLAGS) -o $@
 
 $(ODIR)%.o:	$(SDIR)%.c
 	$(MKDIR) $(ODIR)
@@ -36,7 +36,7 @@ fclean:	clean
 
 clean:
 	$(RM) $(ODIR)
-	$(RM) $(LDIR)$(LIBS)
+	$(MAKE) -C $(dir $(addprefix $(LDIR), $(LIBS))) fclean
 
 re: fclean all
 
