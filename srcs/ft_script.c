@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 17:00:18 by bguyot            #+#    #+#             */
-/*   Updated: 2025/08/26 17:21:32 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/09/23 17:56:06 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,22 +15,23 @@
 #include "define.h"
 #include "libft.h"
 
+#include <stdio.h>
 void print_arguments(t_arguments arguments)
 {
-	ft_printf("Arguments:\n");
-	ft_printf("  - log-in: %s\n", arguments.log_in.path);
-	ft_printf("  - log-out: %s\n", arguments.log_out.path);
-	ft_printf("  - log-io: %s\n", arguments.log_io.path);
-	ft_printf("  - log-timing: %s\n", arguments.log_timing.path);
-	ft_printf("  - logging-format: %s\n", (char *[]){"classic", "advanced"}[arguments.logging_format]);
-	ft_printf("  - append: %d\n", arguments.append);
-	ft_printf("  - return_exit_code: %d\n", arguments.return_exit_code);
-	ft_printf("  - flush: %d\n", arguments.flush);
-	ft_printf("  - follow-links: %d\n", arguments.follow_links);
-	ft_printf("  - quiet: %d\n", arguments.quiet);
-	ft_printf("  - command: %s\n", arguments.command);
-	ft_printf("  - echo: %s\n", (char *[]){"never", "always", "auto"}[arguments.echo]);
-	ft_printf("  - output-limit: %zu\n", arguments.output_limit);
+	printf("Arguments:\n");
+	printf("  - log-in: %s\n", arguments.log_in.path);
+	printf("  - log-out: %s\n", arguments.log_out.path);
+	printf("  - log-io: %s\n", arguments.log_io.path);
+	printf("  - log-timing: %s\n", arguments.log_timing.path);
+	printf("  - logging-format: %s\n", (char *[]){"classic", "advanced"}[arguments.logging_format]);
+	printf("  - append: %d\n", arguments.append);
+	printf("  - return_exit_code: %d\n", arguments.return_exit_code);
+	printf("  - flush: %d\n", arguments.flush);
+	printf("  - follow-links: %d\n", arguments.follow_links);
+	printf("  - quiet: %d\n", arguments.quiet);
+	printf("  - echo: %s\n", (char *[]){"never", "always", "auto"}[arguments.echo]);
+	printf("  - command: %s\n", arguments.command);
+	printf("  - output-limit: %zu\n", arguments.output_limit);
 }
 
 int main(int argc, char **argv, char **envp)
