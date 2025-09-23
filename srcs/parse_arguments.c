@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 15:15:24 by bguyot            #+#    #+#             */
-/*   Updated: 2025/08/26 17:45:05 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/09/23 17:54:30 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 static void
 print_help()
 {
-	ft_printf(
+	ft_putstr(
 		"Usage:\n"
 		"script [options] [file]\n"
 		"\n"
@@ -52,7 +52,8 @@ print_help()
 static void
 print_version()
 {
-	ft_printf("ft_script from ikar %s\n", VERSION);
+	ft_putstr("ft_script from ikar");
+	ft_putendl(VERSION);
 }
 
 int parse_arguments(int argc, char **argv, t_arguments *arguments)
@@ -107,9 +108,10 @@ int parse_arguments(int argc, char **argv, t_arguments *arguments)
 				arguments->logging_format = F_ADVANCED;
 			else
 			{
-				ft_printf("'%s' is not a valid logging format. Options are "
-						  "'classic' and 'advanced'.\n",
-						  ft_optarg);
+				ft_putchar('\'');
+				ft_putstr(ft_optarg);
+				ft_putendl("' is not a valid logging format. Options are "
+						   "'classic' and 'advanced'.");
 				return (-1);
 			}
 			break;
@@ -137,9 +139,10 @@ int parse_arguments(int argc, char **argv, t_arguments *arguments)
 				arguments->echo = E_AUTO;
 			else
 			{
-				ft_printf("'%s' is not a valid logging format. Options are "
-						  "'never', 'always' and 'auto'.\n",
-						  ft_optarg);
+				ft_putchar('\'');
+				ft_putstr(ft_optarg)
+					ft_putendl("' is not a valid logging format. Options are "
+							   "'never', 'always' and 'auto'.");
 				return (-1);
 			}
 			break;
