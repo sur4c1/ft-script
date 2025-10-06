@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 15:15:24 by bguyot            #+#    #+#             */
-/*   Updated: 2025/09/23 17:54:30 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/10/06 16:28:04 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,8 @@ int parse_arguments(int argc, char **argv, t_arguments *arguments)
 			arguments->log_out.path = ft_optarg;
 			break;
 		case 'B':
-			arguments->log_io.path = ft_optarg;
+			arguments->log_in.path = ft_optarg;
+			arguments->log_out.path = ft_optarg;
 			break;
 		case 'T':
 			arguments->log_timing.path = ft_optarg;
@@ -161,9 +162,9 @@ int parse_arguments(int argc, char **argv, t_arguments *arguments)
 	}
 	if (ft_optopt)
 		return (-1);
-	if (!arguments->log_out.path)
+	if (!arguments->log_out.path && !arguments->log_in.path)
 		arguments->log_out.path = ft_optarg;
-	if (!arguments->log_out.path)
+	if (!arguments->log_out.path && !arguments->log_in.path)
 		arguments->log_out.path = "typescript";
 	return (0);
 }

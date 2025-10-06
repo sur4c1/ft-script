@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 17:26:47 by bguyot            #+#    #+#             */
-/*   Updated: 2025/08/26 16:13:16 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/10/06 16:27:07 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,6 @@ typedef struct s_arguments
 {
 	t_file log_in;
 	t_file log_out;
-	t_file log_io;
 	t_file log_timing;
 	t_format logging_format;
 	bool append;
