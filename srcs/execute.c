@@ -1,15 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   define.h                                           :+:      :+:    :+:   */
+/*   execute.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/26 16:12:54 by yyyyyy            #+#    #+#             */
-/*   Updated: 2025/10/11 00:15:36 by yyyyyy           ###   ########.fr       */
+/*   Created: 2025/10/11 00:03:04 by yyyyyy            #+#    #+#             */
+/*   Updated: 2025/10/11 00:03:58 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
-#define VERSION	 "0.0.1"
-#define STR_SIZE 256
+#include "t_arguments.h"
+
+void
+execute(t_arguments arguments)
+{
+	(void) arguments;
+}

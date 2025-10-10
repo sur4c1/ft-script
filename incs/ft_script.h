@@ -3,12 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   ft_script.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bguyot <bguyot@student.42mulhouse.fr>      +#+  +:+       +#+        */
+/*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 17:40:40 by bguyot            #+#    #+#             */
-/*   Updated: 2025/08/25 18:02:21 by bguyot           ###   ########.fr       */
+/*   Updated: 2025/10/11 00:15:28 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#pragma once
+#include "t_arguments.h"
 
 /**
  *	@brief Populate the arguments structure according to the arguments the user
@@ -18,35 +21,35 @@
  *	@param arguments A pointer to the arguments structure to populate
  *	@return The appropriate error code
  */
-int parse_arguments(int argc, char **argv, t_arguments *arguments);
+int
+parse_arguments(int argc, char **argv, t_arguments *arguments);
 
 /**
- *	@brief Set the echo flag of the correct mode, according to specified mode
- *		and tty context
- *	@param arguments A pointer to the arguments structure to modifiy 
+ * @brief Log starting message to STDIN
  */
-void resolve_echo_flag(t_arguments *arguments);
+void
+log_script_started(t_arguments arguments);
 
 /**
- *	@brief Check the files specified in the structure and open() them
- *	@param arguments A pointer to the arguments structure to modifiy 
+ * @brief Resolve an echo flag set to AUTO
  */
-void resolve_output_files(t_arguments *arguments);
+void
+resolve_echo_flag(t_arguments *arguments);
 
 /**
- *	@brief Set the shell field of the arguments structure according
- *		to the environnement, defaulting to bash
- *	@param arguments A pointer to the arguments structure to modifiy 
+ * @brief Open and create the log files
  */
-void resolve_shell(char *shell, char **envp);
+int
+open_log_files(t_arguments *arguments);
 
 /**
- *	@brief Setup the signal hook for SIGUSR1 
+ * @brief Resolve which shell to use, defaults to /bin/bash
  */
-void setup_signal_hooks(void);
+void
+resolve_shell(t_arguments *s_arguments, char **envp);
 
 /**
- *	@brief Execute the shell and redirect the outputs inside the specified files
- *	@param arguments The arguments structure to use as a reference
+ * @brief Main loop
  */
-int execute(t_arguments arguments);
+void
+execute(t_arguments arguments);

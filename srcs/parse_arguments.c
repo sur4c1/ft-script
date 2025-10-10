@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 15:15:24 by bguyot            #+#    #+#             */
-/*   Updated: 2025/10/06 16:28:04 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/10/11 00:19:12 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,10 @@ print_version()
 	ft_putendl(VERSION);
 }
 
-int parse_arguments(int argc, char **argv, t_arguments *arguments)
+int
+parse_arguments(int argc, char **argv, t_arguments *arguments)
 {
-	int arg;
+	int			   arg;
 	const t_option options[] = {
 		{"log-in", required_argument, NULL, 'I'},
 		{"log-out", required_argument, NULL, 'O'},
@@ -79,7 +80,8 @@ int parse_arguments(int argc, char **argv, t_arguments *arguments)
 	};
 
 	while ((arg = ft_getopt_long(argc, argv, "I:O:B:T:t::m:ac:efE:o:qhV",
-								 options, NULL)) != -1)
+								 options, NULL))
+		   != -1)
 	{
 		switch (arg)
 		{
@@ -163,7 +165,7 @@ int parse_arguments(int argc, char **argv, t_arguments *arguments)
 	if (ft_optopt)
 		return (-1);
 	if (!arguments->log_out.path && !arguments->log_in.path)
-		arguments->log_out.path = ft_optarg;
+		arguments->log_out.path = argv[ft_optind];
 	if (!arguments->log_out.path && !arguments->log_in.path)
 		arguments->log_out.path = "typescript";
 	return (0);
