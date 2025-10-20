@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 17:26:47 by bguyot            #+#    #+#             */
-/*   Updated: 2025/10/11 00:15:33 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/10/20 17:54:52 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,8 @@ typedef enum e_echo
 
 typedef struct s_file
 {
-	int	  fd;
-	char *path;
+	int	 fd;
+	char path[1024];
 } t_file;
 
 typedef enum e_format
@@ -44,8 +44,8 @@ typedef struct s_arguments
 	bool	 flush;
 	bool	 follow_links;
 	bool	 quiet;
-	char	*command;
-	char	*shell;
+	char	 command[1024];
+	char	 shell[1024];
 	t_echo	 echo;
 	usz		 output_limit;
 } t_arguments;

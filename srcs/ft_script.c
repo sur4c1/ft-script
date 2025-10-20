@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 17:00:18 by bguyot            #+#    #+#             */
-/*   Updated: 2025/10/11 00:15:07 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/10/20 18:01:42 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "t_arguments.h"
 #include <signal.h>
 
-static int flusher = 0;
+int flusher = 0;
 
 static void
 sighandler(int signal)
@@ -41,7 +41,7 @@ main(int argc, char **argv, char **envp)
 		return (status);
 	resolve_shell(&arguments, envp);
 	signal(SIGUSR1, &sighandler);
-	execute(arguments);
+	execute(arguments, envp);
 	if (!arguments.quiet)
 		ft_putendl("End");
 	return (0);

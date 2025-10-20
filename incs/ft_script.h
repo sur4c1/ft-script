@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 17:40:40 by bguyot            #+#    #+#             */
-/*   Updated: 2025/10/11 00:15:28 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/10/20 18:01:50 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,4 +52,4 @@ resolve_shell(t_arguments *s_arguments, char **envp);
  * @brief Main loop
  */
 void
-execute(t_arguments arguments);
+execute(t_arguments arguments, char **envp);

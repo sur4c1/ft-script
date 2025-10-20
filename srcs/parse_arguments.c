@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 15:15:24 by bguyot            #+#    #+#             */
-/*   Updated: 2025/10/11 00:19:12 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/10/20 17:59:35 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,21 +86,21 @@ parse_arguments(int argc, char **argv, t_arguments *arguments)
 		switch (arg)
 		{
 		case 'I':
-			arguments->log_in.path = ft_optarg;
+			ft_strlcpy(arguments->log_in.path, ft_optarg, 1024);
 			break;
 		case 'O':
-			arguments->log_out.path = ft_optarg;
+			ft_strlcpy(arguments->log_out.path, ft_optarg, 1024);
 			break;
 		case 'B':
-			arguments->log_in.path = ft_optarg;
-			arguments->log_out.path = ft_optarg;
+			ft_strlcpy(arguments->log_in.path, ft_optarg, 1024);
+			ft_strlcpy(arguments->log_out.path, ft_optarg, 1024);
 			break;
 		case 'T':
-			arguments->log_timing.path = ft_optarg;
+			ft_strlcpy(arguments->log_timing.path, ft_optarg, 1024);
 			break;
 		case 't':
 			if (ft_optarg)
-				arguments->log_timing.path = ft_optarg;
+				ft_strlcpy(arguments->log_timing.path, ft_optarg, 1024);
 			else
 				arguments->log_timing.fd = STDERR_FILENO;
 			break;
@@ -122,7 +122,7 @@ parse_arguments(int argc, char **argv, t_arguments *arguments)
 			arguments->append = true;
 			break;
 		case 'c':
-			arguments->command = ft_optarg;
+			ft_strlcpy(arguments->command, ft_optarg, 1024);
 			break;
 		case 'e':
 			arguments->return_exit_code = true;
@@ -164,9 +164,9 @@ parse_arguments(int argc, char **argv, t_arguments *arguments)
 	}
 	if (ft_optopt)
 		return (-1);
-	if (!arguments->log_out.path && !arguments->log_in.path)
-		arguments->log_out.path = argv[ft_optind];
-	if (!arguments->log_out.path && !arguments->log_in.path)
-		arguments->log_out.path = "typescript";
+	if (!arguments->log_out.path[0] && !arguments->log_in.path[0])
+		ft_strlcpy(arguments->log_out.path, argv[ft_optind], 1024);
+	if (!arguments->log_out.path[0] && !arguments->log_in.path[0])
+		ft_strlcpy(arguments->log_out.path, "typescript", 1024);
 	return (0);
 }
