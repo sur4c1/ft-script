@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 15:15:24 by bguyot            #+#    #+#             */
-/*   Updated: 2025/10/20 17:59:35 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/10/20 22:15:33 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,9 +143,9 @@ parse_arguments(int argc, char **argv, t_arguments *arguments)
 			else
 			{
 				ft_putchar('\'');
-				ft_putstr(ft_optarg)
-					ft_putendl("' is not a valid logging format. Options are "
-							   "'never', 'always' and 'auto'.");
+				ft_putstr(ft_optarg);
+				ft_putendl("' is not a valid logging format. Options are "
+						   "'never', 'always' and 'auto'.");
 				return (-1);
 			}
 			break;

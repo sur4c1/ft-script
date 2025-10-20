@@ -2,3 +2,4 @@ objs/
 ft_script
 .vscode/
 source.mk
+typescript
