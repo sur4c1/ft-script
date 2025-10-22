@@ -6,82 +6,91 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 00:03:04 by yyyyyy            #+#    #+#             */
-/*   Updated: 2025/10/20 23:34:32 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/10/22 18:57:02 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "t_arguments.h"
+#include <asm/termbits.h>
+#include <fcntl.h>
 #include <poll.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <unistd.h>
 
 extern int flusher;
 
 void
 execute(t_arguments arguments, char **envp)
 {
-	pid_t		  child;
-	int			  in_pipe[2];
-	int			  out_pipe[2];
-	int			  status;
-	struct pollfd fds[2];
+	int			  master;
+	int			  slave;
+	int			  pid;
+	struct pollfd fd[2];
+	int			  unlock_flag;
 	char		  buffer[1024];
-	usz			  nbread;
+	usz			  byteread;
 
-	if (pipe(in_pipe) || pipe(out_pipe))
+	master = open("/dev/ptmx", O_RDWR | O_NOCTTY);
+	if (master < 0)
 		exit(1);
-	child = fork();
-	if (child < 0)
+	unlock_flag = 0;
+	ioctl(master, TIOCSPTLCK, &unlock_flag);
+	slave = ioctl(master, TIOCGPTPEER, O_RDWR | O_NOCTTY);
+	if (slave < 0)
 		exit(1);
-	if (!child)
+	pid = fork();
+	if (pid < 0)
+		exit(1);
+	if (!pid)
 	{
-		setsid();
-		dup2(out_pipe[1], STDOUT_FILENO);
-		dup2(out_pipe[1], STDERR_FILENO);
-		close(in_pipe[1]);
-		close(out_pipe[0]);
+		if (setsid() < 0 || ioctl(slave, TIOCSCTTY, 0) < 0
+			|| dup2(slave, STDIN_FILENO) < 0 || dup2(slave, STDOUT_FILENO) < 0
+			|| dup2(slave, STDERR_FILENO) < 0)
+		{
+			perror("child setup: ");
+			exit(1);
+		}
+		close(slave);
+		close(master);
 		if (arguments.command[0])
 			execve(arguments.shell,
 				   (char *[]) {arguments.shell, "-c", arguments.command, NULL},
 				   envp);
 		else
 			execve(arguments.shell, (char *[]) {arguments.shell, NULL}, envp);
-		perror("execve");
+		perror("Execve");
 		exit(42);
 	}
-	fds[0] = (struct pollfd) {STDIN_FILENO, POLLIN, 0};
-	fds[1] = (struct pollfd) {out_pipe[0], POLLIN, 0};
-	close(in_pipe[0]);
-	close(out_pipe[1]);
+	close(slave);
 	do
 	{
-		fds[0].revents = 0;
-		fds[1].revents = 0;
-		if (flusher)
+		fd[0] = (struct pollfd) {.fd = master, .events = POLLIN, .revents = 0};
+		fd[1] = (struct pollfd) {.fd = 0, .events = POLLIN, .revents = 0};
+		if (poll(fd, 2, -1))
 		{
-			fsync(arguments.log_out.fd);
-			fsync(arguments.log_in.fd);
-			fsync(arguments.log_timing.fd);
-			flusher = 0;
-		}
-		nbread = poll(fds, 2, 0);
-		if (nbread)
-		{
-			if (fds[1].revents & POLLIN)
+			if (fd[0].revents & POLLIN)
 			{
-				nbread = read(out_pipe[0], buffer, sizeof(buffer));
-				write(STDOUT_FILENO, buffer, nbread);
+				byteread = read(master, buffer, sizeof(buffer));
+				if (!byteread)
+					break;
+				write(1, buffer, byteread);
+				if (arguments.log_out.fd)
+					write(arguments.log_out.fd, buffer, byteread);
 			}
-			if (fds[0].revents & POLLIN)
+			if (fd[0].revents & POLLHUP)
+				break;
+			if (fd[1].revents & POLLIN)
 			{
-				nbread = read(STDIN_FILENO, buffer, sizeof(buffer));
-				write(in_pipe[1], buffer, nbread);
-				if (!nbread)
-					close(in_pipe[1]);
+				byteread = read(0, buffer, sizeof(buffer));
+				if (!byteread)
+					break;
+				write(master, buffer, byteread);
+				if (arguments.log_in.fd)
+					write(arguments.log_in.fd, buffer, byteread);
 			}
 		}
-	} while (!waitpid(child, &status, WNOHANG));
-	close(in_pipe[1]);
-	close(out_pipe[0]);
+	} while (1);
+	close(master);
 }
