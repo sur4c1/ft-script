@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 00:03:04 by yyyyyy            #+#    #+#             */
-/*   Updated: 2025/10/29 16:18:12 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/10/29 17:28:27 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,13 @@
 #include <asm/termbits.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <signal.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
-extern int flusher;
+extern int lastsig;
 
 static void
 write_us(long nb, int fd)
@@ -86,7 +87,7 @@ execute(t_arguments arguments, char **envp)
 	if (!pid)
 	{
 		ioctl(slave, TCGETS, &termconfig);
-		termconfig.c_lflag &= ~ECHO;
+		termconfig.c_lflag &= ~(ECHO | ECHOCTL);
 		ioctl(slave, TCSETS, &termconfig);
 		if (setsid() < 0 || ioctl(slave, TIOCSCTTY, 0) < 0
 			|| dup2(slave, STDIN_FILENO) < 0 || dup2(slave, STDOUT_FILENO) < 0
@@ -111,7 +112,32 @@ execute(t_arguments arguments, char **envp)
 	fd[1] = (struct pollfd) {.fd = 0, .events = POLLIN, .revents = 0};
 	do
 	{
-		if (poll(fd, 2, -1))
+		if (lastsig)
+		{
+			switch (lastsig)
+			{
+			case SIGUSR1:
+				if (arguments.log_in.fd)
+					fsync(arguments.log_in.fd);
+				if (arguments.log_out.fd)
+					fsync(arguments.log_out.fd);
+				if (arguments.log_timing.fd)
+					fsync(arguments.log_timing.fd);
+				break;
+			case SIGINT:
+				write(master, "\003", 1);
+				break;
+			case SIGQUIT:
+				write(master, "\034", 1);
+				break;
+			case SIGTSTP:
+				write(master, "\032", 1);
+				break;
+			default:;
+			}
+			lastsig = 0;
+		}
+		if (poll(fd, 2, 0))
 		{
 			if (fd[0].revents & POLLIN)
 			{
@@ -128,7 +154,7 @@ execute(t_arguments arguments, char **envp)
 			{
 				byteread = read(0, buffer, sizeof(buffer));
 				if (!byteread)
-					write(master, "\04", 1);
+					write(master, "\004", 1);
 				write(master, buffer, byteread);
 				if (arguments.log_in.fd)
 					write(arguments.log_in.fd, buffer, byteread);

@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 17:00:18 by bguyot            #+#    #+#             */
-/*   Updated: 2025/10/29 16:50:16 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/10/29 17:11:57 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,12 @@
 #include "t_arguments.h"
 #include <signal.h>
 
-int flusher = 0;
+int lastsig = 0;
 
 static void
 sighandler(int signal)
 {
-	flusher = 1;
-	(void) signal;
+	lastsig = signal;
 }
 
 int
@@ -42,6 +41,9 @@ main(int argc, char **argv, char **envp)
 		return (status);
 	resolve_shell(&arguments, envp);
 	signal(SIGUSR1, &sighandler);
+	signal(SIGINT, &sighandler);
+	signal(SIGQUIT, &sighandler);
+	signal(SIGTSTP, &sighandler);
 	gettimeofday(&arguments.begin_time, NULL);
 	if (!arguments.quiet)
 		log_script_started(arguments);
