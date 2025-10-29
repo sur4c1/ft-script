@@ -5,7 +5,7 @@
 This project aims to recode the script command, which is used to record terminal
 sessions.
 
-The version of reference is the one from util-linux 2.37.2.
+The version of reference is the one from [util-linux 2.37.2](https://github.com/util-linux/util-linux/tree/v2.37.2).
 
 ## Roadmap
 
