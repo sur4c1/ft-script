@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 17:40:40 by bguyot            #+#    #+#             */
-/*   Updated: 2025/10/20 18:01:50 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/10/29 16:41:46 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,12 @@ open_log_files(t_arguments *arguments);
  */
 void
 resolve_shell(t_arguments *s_arguments, char **envp);
+
+/**
+ * @brief Resolve wich logging format to use, and handle conflicts
+ */
+int
+resolve_format(t_arguments *arguments);
 
 /**
  * @brief Main loop
