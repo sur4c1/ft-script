@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 15:15:24 by bguyot            #+#    #+#             */
-/*   Updated: 2025/10/29 16:49:32 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/11/12 14:51:45 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ parse_arguments(int argc, char **argv, t_arguments *arguments)
 		{"version", no_argument, NULL, 'V'},
 	};
 
+	*arguments = (t_arguments) {.echo = E_AUTO};
 	while ((arg = ft_getopt_long(argc, argv, "I:O:B:T:t::m:ac:efE:o:qhV",
 								 options, NULL))
 		   != -1)

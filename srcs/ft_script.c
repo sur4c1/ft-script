@@ -6,14 +6,16 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 17:00:18 by bguyot            #+#    #+#             */
-/*   Updated: 2025/10/29 17:11:57 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/11/12 14:50:56 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_script.h"
 #include "define.h"
 #include "t_arguments.h"
+#include <asm/termbits.h>
 #include <signal.h>
+#include <sys/ioctl.h>
 
 int lastsig = 0;
 
@@ -26,8 +28,10 @@ sighandler(int signal)
 int
 main(int argc, char **argv, char **envp)
 {
-	t_arguments arguments = {0};
-	int			status;
+	t_arguments	   arguments;
+	int			   status;
+	struct termios base;
+	struct termios raw;
 
 	status = parse_arguments(argc, argv, &arguments);
 	if (status)
@@ -44,10 +48,18 @@ main(int argc, char **argv, char **envp)
 	signal(SIGINT, &sighandler);
 	signal(SIGQUIT, &sighandler);
 	signal(SIGTSTP, &sighandler);
-	gettimeofday(&arguments.begin_time, NULL);
+	signal(SIGWINCH, sighandler);
+	signal(SIGTERM, sighandler);
+	gettimeofday(&arguments.begin, NULL);
+	gettimeofday(&arguments.lastlog, NULL);
 	if (!arguments.quiet)
 		log_script_started(arguments);
+	ioctl(0, TCGETS, &base);
+	raw = base;
+	raw.c_lflag &= ~(ICANON | ECHO | ECHOCTL);
+	ioctl(0, TCSETS, &raw);
 	execute(arguments, envp);
+	ioctl(0, TCSETS, &base);
 	if (!arguments.quiet)
 		ft_putendl("Script done.");
 	return (0);

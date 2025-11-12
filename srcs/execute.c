@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 00:03:04 by yyyyyy            #+#    #+#             */
-/*   Updated: 2025/10/29 17:28:27 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/11/12 14:49:25 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,14 +34,16 @@ write_us(long nb, int fd)
 }
 
 static void
-log_timing(t_arguments *arguments, char logtype, usz nb)
+log_timing(t_arguments *arguments, int logtype, ...)
 {
 	struct timeval now;
 	struct timeval diff;
+	va_list		   ap;
 
+	va_start(ap, logtype);
 	gettimeofday(&now, NULL);
-	diff.tv_sec = now.tv_sec - arguments->begin_time.tv_sec;
-	diff.tv_usec = now.tv_usec - arguments->begin_time.tv_usec;
+	diff.tv_sec = now.tv_sec - arguments->lastlog.tv_sec;
+	diff.tv_usec = now.tv_usec - arguments->lastlog.tv_usec;
 	while (diff.tv_usec < 0)
 	{
 		diff.tv_usec += 1000 * 1000;
@@ -52,13 +54,46 @@ log_timing(t_arguments *arguments, char logtype, usz nb)
 		write(arguments->log_timing.fd, &logtype, 1);
 		write(arguments->log_timing.fd, " ", 1);
 	}
-	ft_putnbr_fd(diff.tv_sec, arguments->log_timing.fd);
-	ft_putchar_fd('.', arguments->log_timing.fd);
-	write_us(diff.tv_usec, arguments->log_timing.fd);
+	if (logtype != 'H')
+	{
+		ft_putnbr_fd(diff.tv_sec, arguments->log_timing.fd);
+		ft_putchar_fd('.', arguments->log_timing.fd);
+		write_us(diff.tv_usec, arguments->log_timing.fd);
+	}
+	else
+		ft_putstr_fd("0.000000", arguments->log_timing.fd);
 	ft_putchar_fd(' ', arguments->log_timing.fd);
-	ft_putnbr_fd(nb, arguments->log_timing.fd);
+	switch (logtype)
+	{
+	case 'I':
+	case 'O':
+		ft_putnbr_fd(va_arg(ap, int), arguments->log_timing.fd);
+		break;
+	case 'H':
+		ft_putstr_fd(va_arg(ap, char *), arguments->log_timing.fd);
+		break;
+	case 'S':
+		switch (va_arg(ap, int))
+		{
+		case SIGWINCH:
+			ft_putstr_fd("SIGWINCH ROWS=", arguments->log_timing.fd);
+			ft_putnbr_fd(va_arg(ap, int), arguments->log_timing.fd);
+			ft_putstr_fd(" COLS=", arguments->log_timing.fd);
+			ft_putnbr_fd(va_arg(ap, int), arguments->log_timing.fd);
+			break;
+		case SIGTERM:
+			ft_putstr_fd("SIGTERM", arguments->log_timing.fd);
+			break;
+		default:
+			break;
+		}
+		break;
+	default:
+		break;
+	}
 	ft_putchar_fd('\n', arguments->log_timing.fd);
-	arguments->begin_time = now;
+	arguments->lastlog = now;
+	va_end(ap);
 }
 
 void
@@ -86,9 +121,12 @@ execute(t_arguments arguments, char **envp)
 		exit(1);
 	if (!pid)
 	{
-		ioctl(slave, TCGETS, &termconfig);
-		termconfig.c_lflag &= ~(ECHO | ECHOCTL);
-		ioctl(slave, TCSETS, &termconfig);
+		if (arguments.echo == E_NEVER)
+		{
+			ioctl(slave, TCGETS, &termconfig);
+			termconfig.c_lflag &= ~(ECHO);
+			ioctl(slave, TCSETS, &termconfig);
+		}
 		if (setsid() < 0 || ioctl(slave, TIOCSCTTY, 0) < 0
 			|| dup2(slave, STDIN_FILENO) < 0 || dup2(slave, STDOUT_FILENO) < 0
 			|| dup2(slave, STDERR_FILENO) < 0)
@@ -133,6 +171,22 @@ execute(t_arguments arguments, char **envp)
 			case SIGTSTP:
 				write(master, "\032", 1);
 				break;
+			case SIGWINCH:
+				if (arguments.log_timing.fd
+					&& arguments.logging_format == F_ADVANCED)
+				{
+					struct winsize w;
+
+					ioctl(0, TIOCGWINSZ, &w);
+					log_timing(&arguments, 'S', SIGWINCH, w.ws_row, w.ws_col);
+				}
+				break;
+			case SIGTERM:
+				if (arguments.log_timing.fd
+					&& arguments.logging_format == F_ADVANCED)
+				{
+					log_timing(&arguments, 'S', SIGTERM);
+				}
 			default:;
 			}
 			lastsig = 0;
