@@ -10,8 +10,8 @@ The version of reference is the one from [util-linux 2.37.2](https://github.com/
 ## Roadmap
 
 -   [x] Logging signals on ADVANCED mode
--   [ ] Logging headers on ADVANCED mode
--   [ ] Auto flush on -f
+-   [ ] Logging useless stuff that the reference logs (initial terminal settings, etc.)
+-   [x] Auto flush on -f
 -   [x] Append to file instead of overwriting it on -a
 -   [x] Return values on -e
 -   [x] Respecting output filesize on -o

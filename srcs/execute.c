@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 00:03:04 by yyyyyy            #+#    #+#             */
-/*   Updated: 2025/11/25 15:00:19 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/11/25 15:14:09 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,6 +195,12 @@ execute(t_arguments arguments, char **envp)
 		}
 		if (poll(fd, 2, 0))
 		{
+			if (arguments.flush)
+			{
+				fsync(arguments.log_in.fd);
+				fsync(arguments.log_out.fd);
+				fsync(arguments.log_timing.fd);
+			}
 			if (fd[0].revents & POLLIN)
 			{
 				byteread = read(master, buffer, sizeof(buffer));
