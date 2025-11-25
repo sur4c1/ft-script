@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 17:56:40 by yyyyyy            #+#    #+#             */
-/*   Updated: 2025/11/25 15:08:16 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/11/25 17:35:05 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ resolve_echo_flag(t_arguments *arguments)
 {
 	if (arguments->echo == E_AUTO)
 	{
-		if (ioctl(1, TIOCGWINSZ) == -1)
+		if (ioctl(0, TIOCGWINSZ) == -1)
 			arguments->echo = E_ALWAYS;
 		else
 			arguments->echo = E_NEVER;
