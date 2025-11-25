@@ -14,7 +14,7 @@ The version of reference is the one from [util-linux 2.37.2](https://github.com/
 -   [ ] Auto flush on -f
 -   [ ] Append to file instead of overwriting it on -a
 -   [ ] Return values on -e (and on errors prolly)
--   [ ] Respecting output filesize on -o
+-   [x] Respecting output filesize on -o
 -   [x] Logging on -O, -I and -B without multiple file descriptors
 -   [x] Lanching with a command on -c
 -   [x] Stop echoing on -E never and resetting termios attributes on exit

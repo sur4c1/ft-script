@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 17:26:47 by bguyot            #+#    #+#             */
-/*   Updated: 2025/11/12 12:30:09 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/11/25 14:49:11 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ typedef struct s_arguments
 	char		   command[1024];
 	char		   shell[1024];
 	t_echo		   echo;
-	usz			   output_limit;
+	long		   output_limit;
 	struct timeval begin;
 	struct timeval lastlog;
 } t_arguments;

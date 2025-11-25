@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 00:03:04 by yyyyyy            #+#    #+#             */
-/*   Updated: 2025/11/12 14:49:25 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/11/25 14:49:24 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,6 +107,7 @@ execute(t_arguments arguments, char **envp)
 	char		   buffer[1024];
 	usz			   byteread;
 	struct termios termconfig;
+	struct stat	   statbuf;
 
 	master = open("/dev/ptmx", O_RDWR | O_NOCTTY);
 	if (master < 0)
@@ -215,6 +216,24 @@ execute(t_arguments arguments, char **envp)
 				if (byteread && arguments.log_timing.fd)
 					log_timing(&arguments, 'I', byteread);
 			}
+			fstat(arguments.log_in.fd, &statbuf);
+			if (arguments.output_limit
+				&& statbuf.st_size > arguments.output_limit)
+				goto limit_exceeded;
+			fstat(arguments.log_timing.fd, &statbuf);
+			if (arguments.output_limit
+				&& statbuf.st_size > arguments.output_limit)
+				goto limit_exceeded;
+			fstat(arguments.log_out.fd, &statbuf);
+			if (arguments.output_limit
+				&& statbuf.st_size > arguments.output_limit)
+				goto limit_exceeded;
+			continue;
+		limit_exceeded:
+			ft_putstr("Script terminated, max output files size ");
+			ft_putnbr(arguments.output_limit);
+			ft_putendl(" exceeded.");
+			break;
 		}
 	} while (1);
 	close(master);
