@@ -13,7 +13,7 @@ The version of reference is the one from [util-linux 2.37.2](https://github.com/
 -   [ ] Logging headers on ADVANCED mode
 -   [ ] Auto flush on -f
 -   [ ] Append to file instead of overwriting it on -a
--   [ ] Return values on -e (and on errors prolly)
+-   [x] Return values on -e
 -   [x] Respecting output filesize on -o
 -   [x] Logging on -O, -I and -B without multiple file descriptors
 -   [x] Lanching with a command on -c

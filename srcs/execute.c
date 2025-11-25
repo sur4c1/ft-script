@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 00:03:04 by yyyyyy            #+#    #+#             */
-/*   Updated: 2025/11/25 14:49:24 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/11/25 15:00:19 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ log_timing(t_arguments *arguments, int logtype, ...)
 	va_end(ap);
 }
 
-void
+int
 execute(t_arguments arguments, char **envp)
 {
 	int			   master;
@@ -108,6 +108,7 @@ execute(t_arguments arguments, char **envp)
 	usz			   byteread;
 	struct termios termconfig;
 	struct stat	   statbuf;
+	int			   status;
 
 	master = open("/dev/ptmx", O_RDWR | O_NOCTTY);
 	if (master < 0)
@@ -237,4 +238,10 @@ execute(t_arguments arguments, char **envp)
 		}
 	} while (1);
 	close(master);
+	waitpid(pid, &status, 0);
+	if (WIFEXITED(status))
+		return WEXITSTATUS(status);
+	if (WIFSIGNALED(status))
+		return WSTOPSIG(status);
+	return (0);
 }

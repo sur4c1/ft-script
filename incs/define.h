@@ -6,10 +6,10 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 16:12:54 by yyyyyy            #+#    #+#             */
-/*   Updated: 2025/11/25 14:54:49 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/11/25 15:03:29 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-#define VERSION	 "1.2.0"
+#define VERSION	 "1.3.0"
 #define STR_SIZE 256

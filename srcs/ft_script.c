@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 17:00:18 by bguyot            #+#    #+#             */
-/*   Updated: 2025/11/12 14:50:56 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/11/25 15:02:45 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,9 +58,11 @@ main(int argc, char **argv, char **envp)
 	raw = base;
 	raw.c_lflag &= ~(ICANON | ECHO | ECHOCTL);
 	ioctl(0, TCSETS, &raw);
-	execute(arguments, envp);
+	status = execute(arguments, envp);
 	ioctl(0, TCSETS, &base);
 	if (!arguments.quiet)
 		ft_putendl("Script done.");
+	if (arguments.return_exit_code)
+		return (status);
 	return (0);
 }
