@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 17:00:18 by bguyot            #+#    #+#             */
-/*   Updated: 2025/11/25 15:02:45 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/11/25 17:32:41 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include <asm/termbits.h>
 #include <signal.h>
 #include <sys/ioctl.h>
+#include <time.h>
+#include <unistd.h>
 
 int lastsig = 0;
 
@@ -23,6 +25,58 @@ static void
 sighandler(int signal)
 {
 	lastsig = signal;
+}
+
+static void
+begin_log(int fd, char **envp)
+{
+	struct timeval now;
+	char		  *date;
+	char		   str[STR_SIZE];
+	struct winsize wsize;
+
+	ft_putstr_fd("Script started on ", fd);
+	gettimeofday(&now, NULL);
+	date = ctime(&now.tv_sec);
+	date[ft_strlen(date) - 1] = 0;
+	ft_putstr_fd(date, fd);
+	ft_putstr_fd(" [", fd);
+	if (ioctl(0, TIOCGWINSZ, &wsize) != -1)
+	{
+		while (*envp)
+		{
+			if (ft_strnstr(*envp, "TERM=", 5) == *envp)
+			{
+				ft_putstr_fd("TERM=\"", fd);
+				ft_putstr_fd(*envp + 5, fd);
+				ft_putstr_fd("\" ", fd);
+				break;
+			}
+			envp++;
+		}
+		ft_putstr_fd("TTY=\"", fd);
+		readlink("/dev/fd/0", str, STR_SIZE);
+		ft_putstr_fd(str, fd);
+		ft_putstr_fd("\" ", fd);
+		ft_putstr_fd("COLUMNS=\"", fd);
+		ft_putnbr_fd(wsize.ws_col, fd);
+		ft_putstr_fd("\" ", fd);
+		ft_putstr_fd("LINES=\"", fd);
+		ft_putnbr_fd(wsize.ws_row, fd);
+		ft_putstr_fd("]", fd);
+	}
+	else
+	{
+		ft_putstr_fd("<not exectuted on a terminal>", fd);
+	}
+	ft_putendl_fd("]", fd);
+	(void) envp;
+}
+
+static void
+end_log(t_arguments arguments)
+{
+	(void) arguments;
 }
 
 int
@@ -58,7 +112,12 @@ main(int argc, char **argv, char **envp)
 	raw = base;
 	raw.c_lflag &= ~(ICANON | ECHO | ECHOCTL);
 	ioctl(0, TCSETS, &raw);
+	if (arguments.log_in.fd)
+		begin_log(arguments.log_in.fd, envp);
+	if (arguments.log_out.fd && arguments.log_out.fd != arguments.log_in.fd)
+		begin_log(arguments.log_out.fd, envp);
 	status = execute(arguments, envp);
+	end_log(arguments);
 	ioctl(0, TCSETS, &base);
 	if (!arguments.quiet)
 		ft_putendl("Script done.");
