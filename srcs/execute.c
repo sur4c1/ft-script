@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 00:03:04 by yyyyyy            #+#    #+#             */
-/*   Updated: 2025/11/25 15:14:09 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/11/25 17:53:52 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,9 @@ execute(t_arguments arguments, char **envp)
 	struct termios termconfig;
 	struct stat	   statbuf;
 	int			   status;
+	int			   pidstatus;
 
+	status = 0;
 	master = open("/dev/ptmx", O_RDWR | O_NOCTTY);
 	if (master < 0)
 		exit(1);
@@ -240,14 +242,15 @@ execute(t_arguments arguments, char **envp)
 			ft_putstr("Script terminated, max output files size ");
 			ft_putnbr(arguments.output_limit);
 			ft_putendl(" exceeded.");
+			status |= 256;
 			break;
 		}
 	} while (1);
 	close(master);
-	waitpid(pid, &status, 0);
-	if (WIFEXITED(status))
-		return WEXITSTATUS(status);
-	if (WIFSIGNALED(status))
-		return WSTOPSIG(status);
-	return (0);
+	waitpid(pid, &pidstatus, 0);
+	if (WIFEXITED(pidstatus))
+		status |= WEXITSTATUS(pidstatus);
+	if (WIFSIGNALED(pidstatus))
+		status |= WSTOPSIG(pidstatus);
+	return (status);
 }

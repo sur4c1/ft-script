@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 17:00:18 by bguyot            #+#    #+#             */
-/*   Updated: 2025/11/25 17:32:41 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/11/25 17:53:26 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,13 +70,31 @@ begin_log(int fd, char **envp)
 		ft_putstr_fd("<not exectuted on a terminal>", fd);
 	}
 	ft_putendl_fd("]", fd);
-	(void) envp;
 }
 
 static void
-end_log(t_arguments arguments)
+end_log(int fd, int status)
 {
-	(void) arguments;
+	struct timeval now;
+	char		  *date;
+
+	ft_putstr_fd("Script started on ", fd);
+	gettimeofday(&now, NULL);
+	date = ctime(&now.tv_sec);
+	date[ft_strlen(date) - 1] = 0;
+	ft_putstr_fd(date, fd);
+	ft_putstr_fd(" [", fd);
+	if (status & 256)
+	{
+		ft_putstr_fd("<max output size exceeded>", fd);
+	}
+	else
+	{
+		ft_putstr_fd("COMMAND_EXIT_CODE+\"", fd);
+		ft_putnbr_fd(status & 255, fd);
+		ft_putchar('"');
+	}
+	ft_putendl_fd("]", fd);
 }
 
 int
@@ -117,11 +135,14 @@ main(int argc, char **argv, char **envp)
 	if (arguments.log_out.fd && arguments.log_out.fd != arguments.log_in.fd)
 		begin_log(arguments.log_out.fd, envp);
 	status = execute(arguments, envp);
-	end_log(arguments);
+	if (arguments.log_in.fd)
+		end_log(arguments.log_in.fd, status);
+	if (arguments.log_out.fd && arguments.log_out.fd != arguments.log_in.fd)
+		end_log(arguments.log_out.fd, status);
 	ioctl(0, TCSETS, &base);
 	if (!arguments.quiet)
 		ft_putendl("Script done.");
 	if (arguments.return_exit_code)
-		return (status);
+		return (status & 255);
 	return (0);
 }
