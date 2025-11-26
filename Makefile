@@ -10,10 +10,10 @@ LIBS	=	libft/libft.a
 OBJS	=	$(addsuffix .o, $(addprefix $(ODIR), $(SRCS)))
 
 CFLAGS	=	-Wall -Werror -Wextra -I$(HDIR) -I$(LDIR)$(dir $(LIBS))
-CFLAGS +=	-g -fsanitize=address
+# CFLAGS +=	-g -fsanitize=address
 
 LFLAGS	=	$(addprefix -L$(LDIR), $(dir $(LIBS))) -lft
-LFLAGS +=	-fsanitize=address
+# LFLAGS +=	-fsanitize=address
 
 RM		=	@rm -rf
 CC		=	@cc
