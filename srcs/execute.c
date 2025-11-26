@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 00:03:04 by yyyyyy            #+#    #+#             */
-/*   Updated: 2025/11/25 17:53:52 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/11/26 15:45:48 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 
 extern int lastsig;
 
-static void
+void
 write_us(long nb, int fd)
 {
 	ft_putnbr_fd(nb / 100000, fd);

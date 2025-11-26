@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 17:40:40 by bguyot            #+#    #+#             */
-/*   Updated: 2025/11/25 15:00:01 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/11/26 15:46:04 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,3 +59,6 @@ resolve_format(t_arguments *arguments);
  */
 int
 execute(t_arguments arguments, char **envp);
+
+void
+write_us(long nb, int fd);
