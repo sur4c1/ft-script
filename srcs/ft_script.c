@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 17:00:18 by bguyot            #+#    #+#             */
-/*   Updated: 2025/11/25 17:53:26 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/11/26 15:55:05 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ begin_log(int fd, char **envp)
 		ft_putstr_fd("\" ", fd);
 		ft_putstr_fd("LINES=\"", fd);
 		ft_putnbr_fd(wsize.ws_row, fd);
-		ft_putstr_fd("]", fd);
+		ft_putstr_fd("\"", fd);
 	}
 	else
 	{
@@ -92,9 +92,90 @@ end_log(int fd, int status)
 	{
 		ft_putstr_fd("COMMAND_EXIT_CODE+\"", fd);
 		ft_putnbr_fd(status & 255, fd);
-		ft_putchar('"');
+		ft_putchar_fd('"', fd);
 	}
 	ft_putendl_fd("]", fd);
+}
+
+static void
+begin_advanced_log(int fd, char **envp, t_arguments arguments)
+{
+	struct timeval now;
+	char		  *date;
+	char		   str[STR_SIZE];
+	struct winsize wsize;
+
+	ft_putstr_fd("H 0.000000 START_TIME", fd);
+	gettimeofday(&now, NULL);
+	date = ctime(&now.tv_sec);
+	ft_putstr_fd(date, fd);
+	if (ioctl(0, TIOCGWINSZ, &wsize) != -1)
+	{
+		while (*envp)
+		{
+			if (ft_strnstr(*envp, "TERM=", 5) == *envp)
+			{
+				ft_putstr_fd("H 0.000000 TERM ", fd);
+				ft_putstr_fd(*envp + 5, fd);
+				ft_putchar_fd('\n', fd);
+				break;
+			}
+			envp++;
+		}
+		ft_putstr_fd("H 0.000000 TTY ", fd);
+		readlink("/dev/fd/0", str, STR_SIZE);
+		ft_putstr_fd(str, fd);
+		ft_putstr_fd("\n", fd);
+		ft_putstr_fd("H 0.000000 COLUMNS ", fd);
+		ft_putnbr_fd(wsize.ws_col, fd);
+		ft_putstr_fd("\n", fd);
+		ft_putstr_fd("H 0.000000 LINES ", fd);
+		ft_putnbr_fd(wsize.ws_row, fd);
+		ft_putstr_fd("\n", fd);
+	}
+	ft_putstr_fd("H 0.000000 SHELL ", fd);
+	ft_putstr_fd(arguments.shell, fd);
+	ft_putchar_fd('\n', fd);
+	if (arguments.log_timing.fd)
+	{
+		ft_putstr_fd("H 0.000000 TIMING_LOG ", fd);
+		ft_putstr_fd(arguments.log_timing.path, fd);
+		ft_putchar_fd('\n', fd);
+	}
+	if (arguments.log_out.fd)
+	{
+		ft_putstr_fd("H 0.000000 OUTPUT_LOG ", fd);
+		ft_putstr_fd(arguments.log_out.path, fd);
+		ft_putchar_fd('\n', fd);
+	}
+	if (arguments.log_in.fd)
+	{
+		ft_putstr_fd("H 0.000000 INPUT_LOG ", fd);
+		ft_putstr_fd(arguments.log_in.path, fd);
+		ft_putchar_fd('\n', fd);
+	}
+}
+
+static void
+end_advanced_log(int fd, int status, t_arguments arguments)
+{
+	struct timeval now;
+
+	gettimeofday(&now, NULL);
+	now.tv_sec -= arguments.begin.tv_sec;
+	now.tv_usec -= arguments.begin.tv_usec;
+	if (now.tv_usec < 0)
+	{
+		now.tv_sec -= 1;
+		now.tv_usec += 1000 * 1000;
+	}
+	ft_putstr_fd("H 0.000000 DURATION ", fd);
+	ft_putnbr_fd(now.tv_sec, fd);
+	ft_putchar_fd('.', fd);
+	write_us(now.tv_usec, fd);
+	ft_putstr_fd("\nH 0.000000 EXIT_CODE ", fd);
+	ft_putnbr_fd(status & 255, fd);
+	ft_putchar_fd('\n', fd);
 }
 
 int
@@ -134,11 +215,15 @@ main(int argc, char **argv, char **envp)
 		begin_log(arguments.log_in.fd, envp);
 	if (arguments.log_out.fd && arguments.log_out.fd != arguments.log_in.fd)
 		begin_log(arguments.log_out.fd, envp);
+	if (arguments.log_timing.fd && arguments.logging_format == F_ADVANCED)
+		begin_advanced_log(arguments.log_timing.fd, envp, arguments);
 	status = execute(arguments, envp);
 	if (arguments.log_in.fd)
 		end_log(arguments.log_in.fd, status);
 	if (arguments.log_out.fd && arguments.log_out.fd != arguments.log_in.fd)
 		end_log(arguments.log_out.fd, status);
+	if (arguments.log_timing.fd && arguments.logging_format == F_ADVANCED)
+		end_advanced_log(arguments.log_timing.fd, status, arguments);
 	ioctl(0, TCSETS, &base);
 	if (!arguments.quiet)
 		ft_putendl("Script done.");
