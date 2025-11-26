@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 00:03:04 by yyyyyy            #+#    #+#             */
-/*   Updated: 2025/11/26 15:45:48 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/11/26 16:04:08 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,23 +54,15 @@ log_timing(t_arguments *arguments, int logtype, ...)
 		write(arguments->log_timing.fd, &logtype, 1);
 		write(arguments->log_timing.fd, " ", 1);
 	}
-	if (logtype != 'H')
-	{
-		ft_putnbr_fd(diff.tv_sec, arguments->log_timing.fd);
-		ft_putchar_fd('.', arguments->log_timing.fd);
-		write_us(diff.tv_usec, arguments->log_timing.fd);
-	}
-	else
-		ft_putstr_fd("0.000000", arguments->log_timing.fd);
+	ft_putnbr_fd(diff.tv_sec, arguments->log_timing.fd);
+	ft_putchar_fd('.', arguments->log_timing.fd);
+	write_us(diff.tv_usec, arguments->log_timing.fd);
 	ft_putchar_fd(' ', arguments->log_timing.fd);
 	switch (logtype)
 	{
 	case 'I':
 	case 'O':
 		ft_putnbr_fd(va_arg(ap, int), arguments->log_timing.fd);
-		break;
-	case 'H':
-		ft_putstr_fd(va_arg(ap, char *), arguments->log_timing.fd);
 		break;
 	case 'S':
 		switch (va_arg(ap, int))
@@ -212,7 +204,7 @@ execute(t_arguments arguments, char **envp)
 				if (byteread && arguments.log_timing.fd)
 					log_timing(&arguments, 'O', byteread);
 			}
-			if (fd[0].revents & POLLHUP)
+			if (fd[0].revents & POLLHUP || fd[1].revents & POLLHUP)
 				break;
 			if (fd[1].revents & POLLIN)
 			{

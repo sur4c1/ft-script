@@ -27,4 +27,4 @@ The version of reference is the one from [util-linux 2.37.2](https://github.com/
 
 ## Known bugs
 
--   [ ] Weird behavior when input is a closed pipe ? (`make echo | ./ft_script`, when echo is not a valid make target)
+-   [x] Weird behavior when input is a closed pipe ? (`make echo | ./ft_script`, when echo is not a valid make target)
