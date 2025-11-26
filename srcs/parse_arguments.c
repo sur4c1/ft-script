@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 15:15:24 by bguyot            #+#    #+#             */
-/*   Updated: 2025/11/12 14:51:45 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/11/26 15:40:59 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ parse_arguments(int argc, char **argv, t_arguments *arguments)
 			if (ft_optarg)
 				ft_strlcpy(arguments->log_timing.path, ft_optarg, 1024);
 			else
-				arguments->log_timing.fd = STDERR_FILENO;
+				ft_strlcpy(arguments->log_timing.path, "/dev/stderr", 1024);
 			break;
 		case 'm':
 			if (!ft_strcmp(ft_optarg, "classic"))
