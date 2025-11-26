@@ -13,8 +13,8 @@ The version of reference is the one from [util-linux 2.37.2](https://github.com/
 -   [ ] Logging useless stuff that the reference logs (initial terminal settings, etc.)
     -   [x] Begin log in in/out files
     -   [x] End log in in/out files
-    -   [ ] Begin log in timing file
-    -   [ ] End log in timing file
+    -   [x] Begin log in timing file
+    -   [x] End log in timing file
 -   [x] Auto flush on -f
 -   [x] Append to file instead of overwriting it on -a
 -   [x] Return values on -e
