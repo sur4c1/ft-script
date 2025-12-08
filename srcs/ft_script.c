@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 17:00:18 by bguyot            #+#    #+#             */
-/*   Updated: 2025/11/26 15:55:05 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/12/08 15:03:32 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ end_log(int fd, int status)
 	struct timeval now;
 	char		  *date;
 
-	ft_putstr_fd("Script started on ", fd);
+	ft_putstr_fd("Script done on ", fd);
 	gettimeofday(&now, NULL);
 	date = ctime(&now.tv_sec);
 	date[ft_strlen(date) - 1] = 0;
