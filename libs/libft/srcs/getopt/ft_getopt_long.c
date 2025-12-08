@@ -12,26 +12,29 @@
 
 #include "ft_getopt.h"
 
-char *ft_optarg = NULL;
-int ft_optind = 1;
-int ft_optopt = 0;
+char  *ft_optarg = NULL;
+int	   ft_optind = 1;
+int	   ft_optopt = 0;
 t_bool ft_opterr = TRUE;
 
-static t_bool is_option(str arg)
+static t_bool
+is_option(str arg)
 {
 	return arg[0] == '-' && ft_strcmp(arg, "-");
 }
 
-static void swap_args(char *const argv[], int i, int j)
+static void
+swap_args(char *const argv[], int i, int j)
 {
 	char *tmp;
 
 	tmp = argv[i];
-	((char **)argv)[i] = argv[j];
-	((char **)argv)[j] = tmp;
+	((char **) argv)[i] = argv[j];
+	((char **) argv)[j] = tmp;
 }
 
-static void move_front(char *const argv[], int elemind, int nb_put_to_left)
+static void
+move_front(char *const argv[], int elemind, int nb_put_to_left)
 {
 	while (elemind > nb_put_to_left + 1)
 	{
@@ -40,14 +43,11 @@ static void move_front(char *const argv[], int elemind, int nb_put_to_left)
 	}
 }
 
-static int shortparse(
-	int argc,
-	char *const argv[],
-	const char *optstring,
-	int *nextshrt)
+static int
+shortparse(int argc, char *const argv[], const char *optstring, int *nextshrt)
 {
-	int optindex;
-	int shrtindex;
+	int	  optindex;
+	int	  shrtindex;
 	char *opt;
 
 	optindex = ft_optind;
@@ -99,7 +99,8 @@ static int shortparse(
 	return argv[optindex][shrtindex];
 }
 
-static usz ft_optlen(str opt)
+static usz
+ft_optlen(str opt)
 {
 	usz i;
 
@@ -109,13 +110,11 @@ static usz ft_optlen(str opt)
 	return i;
 }
 
-static const t_option *longparse(
-	int argc,
-	char *const argv[],
-	const t_option *longopts,
-	int *longindex)
+static const t_option *
+longparse(int argc, char *const argv[], const t_option *longopts,
+		  int *longindex)
 {
-	int i;
+	int	  i;
 	char *opt;
 
 	*longindex = -1;
@@ -187,17 +186,15 @@ static const t_option *longparse(
 	return longopts + *longindex;
 }
 
-int ft_getopt_long(
-	int argc,
-	char *const argv[],
-	const char *optstring,
-	const t_option *longopts,
-	int *longindex)
+int
+ft_getopt_long(int argc, char *const argv[], const char *optstring,
+			   const t_option *longopts, int *longindex)
 {
 	const t_option *longopt;
-	static int nextshrt = 1;
-	static int prevind = 0;
-	static int nb_put_to_left = 0;
+	static int		nextshrt = 1;
+	static int		prevind = 0;
+	static int		nb_put_to_left = 0;
+	int				longidx;
 
 	ft_optarg = NULL;
 	if (prevind)
@@ -221,10 +218,12 @@ int ft_getopt_long(
 	}
 	if (longopts && ft_strncmp(argv[ft_optind], "--", 2) == 0)
 	{
-		longopt = longparse(argc, argv, longopts, longindex);
+		longopt = longparse(argc, argv, longopts, &longidx);
 		if (longopt)
 			return longopt->val;
 		return '?';
 	}
+	if (longindex)
+		*longindex = longidx;
 	return shortparse(argc, argv, optstring, &nextshrt);
 }
