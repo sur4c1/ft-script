@@ -24,7 +24,3 @@ The version of reference is the one from [util-linux 2.37.2](https://github.com/
 -   [x] Stop echoing on -E never and resetting termios attributes on exit
 -   [x] Signal handling (SIGINT, SIGQUIT, SIGTSTP, SIGUSR1)
 -   [-] Slower auto flush from write ?
-
-## Known bugs
-
--   [x] Weird behavior when input is a closed pipe ? (`make echo | ./ft_script`, when echo is not a valid make target)
