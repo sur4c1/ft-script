@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 00:03:04 by yyyyyy            #+#    #+#             */
-/*   Updated: 2025/11/26 16:04:08 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/12/08 16:00:04 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,7 @@ execute(t_arguments arguments, char **envp)
 	struct stat	   statbuf;
 	int			   status;
 	int			   pidstatus;
+	struct winsize wsize;
 
 	status = 0;
 	master = open("/dev/ptmx", O_RDWR | O_NOCTTY);
@@ -110,6 +111,8 @@ execute(t_arguments arguments, char **envp)
 	unlock_flag = 0;
 	ioctl(master, TIOCSPTLCK, &unlock_flag);
 	slave = ioctl(master, TIOCGPTPEER, O_RDWR | O_NOCTTY);
+	ioctl(0, TIOCGWINSZ, &wsize);
+	ioctl(slave, TIOCSWINSZ, &wsize);
 	if (slave < 0)
 		exit(1);
 	pid = fork();
@@ -141,7 +144,6 @@ execute(t_arguments arguments, char **envp)
 		perror("Execve");
 		exit(42);
 	}
-	close(slave);
 	fd[0] = (struct pollfd) {.fd = master, .events = POLLIN, .revents = 0};
 	fd[1] = (struct pollfd) {.fd = 0, .events = POLLIN, .revents = 0};
 	do
@@ -168,13 +170,13 @@ execute(t_arguments arguments, char **envp)
 				write(master, "\032", 1);
 				break;
 			case SIGWINCH:
+				ioctl(0, TIOCGWINSZ, &wsize);
+				ioctl(slave, TIOCSWINSZ, &wsize);
 				if (arguments.log_timing.fd
 					&& arguments.logging_format == F_ADVANCED)
 				{
-					struct winsize w;
-
-					ioctl(0, TIOCGWINSZ, &w);
-					log_timing(&arguments, 'S', SIGWINCH, w.ws_row, w.ws_col);
+					log_timing(&arguments, 'S', SIGWINCH, wsize.ws_row,
+							   wsize.ws_col);
 				}
 				break;
 			case SIGTERM:
@@ -204,8 +206,6 @@ execute(t_arguments arguments, char **envp)
 				if (byteread && arguments.log_timing.fd)
 					log_timing(&arguments, 'O', byteread);
 			}
-			if (fd[0].revents & POLLHUP || fd[1].revents & POLLHUP)
-				break;
 			if (fd[1].revents & POLLIN)
 			{
 				byteread = read(0, buffer, sizeof(buffer));
@@ -217,6 +217,10 @@ execute(t_arguments arguments, char **envp)
 				if (byteread && arguments.log_timing.fd)
 					log_timing(&arguments, 'I', byteread);
 			}
+			if (fd[0].revents & POLLHUP)
+				break;
+			if (fd[1].revents & POLLHUP)
+				break;
 			fstat(arguments.log_in.fd, &statbuf);
 			if (arguments.output_limit
 				&& statbuf.st_size > arguments.output_limit)
@@ -237,7 +241,10 @@ execute(t_arguments arguments, char **envp)
 			status |= 256;
 			break;
 		}
+		if (waitpid(pid, &pidstatus, WNOHANG))
+			break;
 	} while (1);
+	close(slave);
 	close(master);
 	waitpid(pid, &pidstatus, 0);
 	if (WIFEXITED(pidstatus))
