@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 15:15:24 by bguyot            #+#    #+#             */
-/*   Updated: 2025/11/26 15:40:59 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/12/08 15:13:46 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,6 +155,7 @@ parse_arguments(int argc, char **argv, t_arguments *arguments)
 			break;
 		case 'q':
 			arguments->quiet = true;
+			break;
 		case 'h':
 			print_help();
 			exit(0);
