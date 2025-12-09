@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 00:03:04 by yyyyyy            #+#    #+#             */
-/*   Updated: 2025/12/08 16:00:04 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/12/09 14:03:42 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,99 @@ log_timing(t_arguments *arguments, int logtype, ...)
 	va_end(ap);
 }
 
+static int
+watch_io(struct pollfd fd[2], t_arguments arguments)
+{
+	usz	 byte;
+	char buf[1024];
+
+	if (!poll(fd, 2, 0))
+		return 0;
+	if (fd[0].revents & POLLIN)
+	{
+		byte = read(fd[0].fd, buf, sizeof(buf));
+		if (!byte)
+			return 1;
+		write(1, buf, byte);
+		if (arguments.log_out.fd)
+			write(arguments.log_out.fd, buf, byte);
+		if (arguments.log_timing.fd)
+			log_timing(&arguments, 'O', byte);
+	}
+	else if (fd[1].revents & POLLIN)
+	{
+		byte = read(fd[1].fd, buf, sizeof(buf));
+		if (!byte)
+		{
+			write(fd[0].fd, "\004", 1);
+			return 0;
+		}
+		write(fd[0].fd, buf, byte);
+		if (arguments.log_in.fd)
+			write(arguments.log_in.fd, buf, byte);
+		if (arguments.log_timing.fd)
+			log_timing(&arguments, 'I', byte);
+	}
+	else if (fd[0].revents & POLLHUP)
+		return 1;
+	else if (fd[1].revents & POLLHUP)
+		write(fd[0].fd, "\004", 1);
+	return 0;
+}
+
+static void
+flush_all(t_arguments arguments)
+{
+	if (arguments.log_in.fd)
+		fsync(arguments.log_in.fd);
+	if (arguments.log_out.fd)
+		fsync(arguments.log_out.fd);
+	if (arguments.log_timing.fd)
+		fsync(arguments.log_timing.fd);
+}
+
+static void
+watch_signals(t_arguments arguments, int master, int slave,
+			  struct winsize wsize)
+{
+	if (lastsig)
+	{
+		switch (lastsig)
+		{
+		case SIGUSR1:
+			flush_all(arguments);
+			break;
+		case SIGINT:
+			write(master, "\003", 1);
+			break;
+		case SIGQUIT:
+			write(master, "\034", 1);
+			break;
+		case SIGTSTP:
+			write(master, "\032", 1);
+			break;
+		case SIGWINCH:
+			ioctl(0, TIOCGWINSZ, &wsize);
+			ioctl(slave, TIOCSWINSZ, &wsize);
+			if (arguments.log_timing.fd
+				&& arguments.logging_format == F_ADVANCED)
+			{
+				log_timing(&arguments, 'S', SIGWINCH, wsize.ws_row,
+						   wsize.ws_col);
+			}
+			break;
+		case SIGTERM:
+			if (arguments.log_timing.fd
+				&& arguments.logging_format == F_ADVANCED)
+			{
+				log_timing(&arguments, 'S', SIGTERM);
+			}
+		default:;
+		}
+		lastsig = 0;
+	}
+}
+
 int
 execute(t_arguments arguments, char **envp)
 {
@@ -96,14 +189,13 @@ execute(t_arguments arguments, char **envp)
 	int			   pid;
 	struct pollfd  fd[2];
 	int			   unlock_flag;
-	char		   buffer[1024];
-	usz			   byteread;
 	struct termios termconfig;
 	struct stat	   statbuf;
 	int			   status;
-	int			   pidstatus;
+	int			   pid_status;
 	struct winsize wsize;
 
+	int			   log = open("log", O_APPEND | O_WRONLY);
 	status = 0;
 	master = open("/dev/ptmx", O_RDWR | O_NOCTTY);
 	if (master < 0)
@@ -148,108 +240,38 @@ execute(t_arguments arguments, char **envp)
 	fd[1] = (struct pollfd) {.fd = 0, .events = POLLIN, .revents = 0};
 	do
 	{
-		if (lastsig)
-		{
-			switch (lastsig)
-			{
-			case SIGUSR1:
-				if (arguments.log_in.fd)
-					fsync(arguments.log_in.fd);
-				if (arguments.log_out.fd)
-					fsync(arguments.log_out.fd);
-				if (arguments.log_timing.fd)
-					fsync(arguments.log_timing.fd);
-				break;
-			case SIGINT:
-				write(master, "\003", 1);
-				break;
-			case SIGQUIT:
-				write(master, "\034", 1);
-				break;
-			case SIGTSTP:
-				write(master, "\032", 1);
-				break;
-			case SIGWINCH:
-				ioctl(0, TIOCGWINSZ, &wsize);
-				ioctl(slave, TIOCSWINSZ, &wsize);
-				if (arguments.log_timing.fd
-					&& arguments.logging_format == F_ADVANCED)
-				{
-					log_timing(&arguments, 'S', SIGWINCH, wsize.ws_row,
-							   wsize.ws_col);
-				}
-				break;
-			case SIGTERM:
-				if (arguments.log_timing.fd
-					&& arguments.logging_format == F_ADVANCED)
-				{
-					log_timing(&arguments, 'S', SIGTERM);
-				}
-			default:;
-			}
-			lastsig = 0;
-		}
-		if (poll(fd, 2, 0))
-		{
-			if (arguments.flush)
-			{
-				fsync(arguments.log_in.fd);
-				fsync(arguments.log_out.fd);
-				fsync(arguments.log_timing.fd);
-			}
-			if (fd[0].revents & POLLIN)
-			{
-				byteread = read(master, buffer, sizeof(buffer));
-				write(1, buffer, byteread);
-				if (arguments.log_out.fd)
-					write(arguments.log_out.fd, buffer, byteread);
-				if (byteread && arguments.log_timing.fd)
-					log_timing(&arguments, 'O', byteread);
-			}
-			if (fd[1].revents & POLLIN)
-			{
-				byteread = read(0, buffer, sizeof(buffer));
-				if (!byteread)
-					write(master, "\004", 1);
-				write(master, buffer, byteread);
-				if (arguments.log_in.fd)
-					write(arguments.log_in.fd, buffer, byteread);
-				if (byteread && arguments.log_timing.fd)
-					log_timing(&arguments, 'I', byteread);
-			}
-			if (fd[0].revents & POLLHUP)
-				break;
-			if (fd[1].revents & POLLHUP)
-				break;
-			fstat(arguments.log_in.fd, &statbuf);
-			if (arguments.output_limit
-				&& statbuf.st_size > arguments.output_limit)
-				goto limit_exceeded;
-			fstat(arguments.log_timing.fd, &statbuf);
-			if (arguments.output_limit
-				&& statbuf.st_size > arguments.output_limit)
-				goto limit_exceeded;
-			fstat(arguments.log_out.fd, &statbuf);
-			if (arguments.output_limit
-				&& statbuf.st_size > arguments.output_limit)
-				goto limit_exceeded;
-			continue;
-		limit_exceeded:
-			ft_putstr("Script terminated, max output files size ");
-			ft_putnbr(arguments.output_limit);
-			ft_putendl(" exceeded.");
-			status |= 256;
+		if (watch_io(fd, arguments))
 			break;
-		}
-		if (waitpid(pid, &pidstatus, WNOHANG))
+		if (arguments.flush)
+			flush_all(arguments);
+		watch_signals(arguments, master, slave, wsize);
+		fstat(arguments.log_in.fd, &statbuf);
+		if (arguments.output_limit && statbuf.st_size > arguments.output_limit)
+			goto limit_exceeded;
+		fstat(arguments.log_timing.fd, &statbuf);
+		if (arguments.output_limit && statbuf.st_size > arguments.output_limit)
+			goto limit_exceeded;
+		fstat(arguments.log_out.fd, &statbuf);
+		if (arguments.output_limit && statbuf.st_size > arguments.output_limit)
+			goto limit_exceeded;
+		else if (waitpid(pid, &pid_status, WNOHANG))
 			break;
+		continue;
+	limit_exceeded:
+		ft_putstr("Script terminated, max output files size ");
+		ft_putnbr(arguments.output_limit);
+		ft_putendl(" exceeded.");
+		status |= 256;
+		break;
 	} while (1);
 	close(slave);
 	close(master);
-	waitpid(pid, &pidstatus, 0);
-	if (WIFEXITED(pidstatus))
-		status |= WEXITSTATUS(pidstatus);
-	if (WIFSIGNALED(pidstatus))
-		status |= WSTOPSIG(pidstatus);
+	waitpid(pid, &pid_status, 0);
+	if (WIFEXITED(pid_status))
+		status |= WEXITSTATUS(pid_status);
+	if (WIFSIGNALED(pid_status))
+		status |= WSTOPSIG(pid_status);
+	ft_putendl_fd("end\n", log);
+	close(log);
 	return (status);
 }
