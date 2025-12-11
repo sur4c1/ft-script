@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 17:56:40 by yyyyyy            #+#    #+#             */
-/*   Updated: 2025/12/11 15:24:10 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/12/11 15:28:38 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,10 @@ open_log_files(t_arguments *arguments)
 										O_WRONLY | O_CREAT | flags, 0644);
 	if (arguments->log_in.fd < 0 || arguments->log_out.fd < 0
 		|| arguments->log_timing.fd < 0)
+	{
+		ft_putendl_fd("Failed to open a log file.", 2);
 		return (ERROR);
+	}
 	return (OK);
 }
 

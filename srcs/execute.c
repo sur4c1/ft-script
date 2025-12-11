@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 00:03:04 by yyyyyy            #+#    #+#             */
-/*   Updated: 2025/12/09 14:03:42 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/12/11 15:29:02 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,7 +222,6 @@ execute(t_arguments arguments, char **envp)
 			|| dup2(slave, STDIN_FILENO) < 0 || dup2(slave, STDOUT_FILENO) < 0
 			|| dup2(slave, STDERR_FILENO) < 0)
 		{
-			perror("child setup");
 			exit(1);
 		}
 		close(slave);
@@ -233,7 +232,6 @@ execute(t_arguments arguments, char **envp)
 				   envp);
 		else
 			execve(arguments.shell, (char *[]) {arguments.shell, NULL}, envp);
-		perror("Execve");
 		exit(42);
 	}
 	fd[0] = (struct pollfd) {.fd = master, .events = POLLIN, .revents = 0};
