@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 15:15:24 by bguyot            #+#    #+#             */
-/*   Updated: 2025/12/11 15:30:45 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/12/11 15:31:48 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ print_help()
 		"shell\n"
 		"-e, --return                  return exit code of the child process\n"
 		"-f, --flush                   run flush after each write\n"
-		"--force                   use output file even when it is a link\n"
+		"--force                       use output file even when it is a link\n"
 		"-E, --echo <when>             echo input in session (auto, always or "
 		"never)\n"
 		"-o, --output-limit <size>     terminate if output files exceed size\n"
