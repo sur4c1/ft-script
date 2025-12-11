@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 15:15:24 by bguyot            #+#    #+#             */
-/*   Updated: 2025/12/11 15:17:06 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/12/11 15:30:45 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ print_help()
 static void
 print_version()
 {
-	ft_putstr("ft_script from ikar");
+	ft_putstr("ft_script from ikar ");
 	ft_putendl(VERSION);
 }
 
