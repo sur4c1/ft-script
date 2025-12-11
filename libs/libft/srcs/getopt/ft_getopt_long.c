@@ -173,7 +173,7 @@ longparse(int argc, char *const argv[], const t_option *longopts,
 	}
 	if (ft_optind >= argc)
 	{
-		if (ft_opterr)
+		if (ft_opterr && longopts[*longindex].has_arg == required_argument)
 		{
 			ft_putstr(argv[0]);
 			ft_putstr(": option '--");
