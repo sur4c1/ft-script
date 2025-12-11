@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 17:56:40 by yyyyyy            #+#    #+#             */
-/*   Updated: 2025/12/09 13:55:52 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/12/11 15:24:10 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,29 +57,29 @@ resolve_format(t_arguments *arguments)
 int
 open_log_files(t_arguments *arguments)
 {
-	int trunc_or_append;
+	int flags;
 
 	if (arguments->append)
-		trunc_or_append = O_APPEND;
+		flags = O_APPEND;
 	else
-		trunc_or_append = O_TRUNC;
+		flags = O_TRUNC;
+	if (!arguments->follow_links)
+		flags |= __O_NOFOLLOW;
 	if (arguments->log_in.path[0])
-		arguments->log_in.fd = open(arguments->log_in.path,
-									O_WRONLY | O_CREAT | trunc_or_append, 0644);
+		arguments->log_in.fd
+			= open(arguments->log_in.path, O_WRONLY | O_CREAT | flags, 0644);
 	if (!ft_strcmp(arguments->log_in.path, arguments->log_out.path))
 		arguments->log_out.fd = arguments->log_in.fd;
 	else if (arguments->log_out.path[0])
 		arguments->log_out.fd
-			= open(arguments->log_out.path,
-				   O_WRONLY | O_CREAT | trunc_or_append, 0644);
+			= open(arguments->log_out.path, O_WRONLY | O_CREAT | flags, 0644);
 	if (!ft_strcmp(arguments->log_timing.path, arguments->log_in.path))
 		arguments->log_timing.fd = arguments->log_in.fd;
 	else if (!ft_strcmp(arguments->log_timing.path, arguments->log_out.path))
 		arguments->log_timing.fd = arguments->log_out.fd;
 	else if (arguments->log_timing.path[0])
-		arguments->log_timing.fd
-			= open(arguments->log_timing.path,
-				   O_WRONLY | O_CREAT | trunc_or_append, 0644);
+		arguments->log_timing.fd = open(arguments->log_timing.path,
+										O_WRONLY | O_CREAT | flags, 0644);
 	if (arguments->log_in.fd < 0 || arguments->log_out.fd < 0
 		|| arguments->log_timing.fd < 0)
 		return (ERROR);
