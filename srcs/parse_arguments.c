@@ -6,7 +6,7 @@
 /*   By: yyyyyy <yyyyyy@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 15:15:24 by bguyot            #+#    #+#             */
-/*   Updated: 2025/12/08 15:13:46 by yyyyyy           ###   ########.fr       */
+/*   Updated: 2025/12/11 15:17:06 by yyyyyy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,6 +162,9 @@ parse_arguments(int argc, char **argv, t_arguments *arguments)
 		case 'V':
 			print_version();
 			exit(0);
+		case '?':
+			print_help();
+			exit(1);
 		}
 	}
 	if (ft_optopt)
